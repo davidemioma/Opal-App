@@ -7,9 +7,17 @@
     "docker": "docker compose up --build",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:generate": "bunx prisma generate",
+    "db:migrate": "bunx prisma migrate dev --name init",
+    "db:push": "bunx prisma db push",
+    "db:studio": "bunx prisma studio",
+    "db:reset": "bunx prisma migrate reset"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.3.1",
+    "@prisma/client": "^5.22.0",
+    "@radix-ui/react-slot": "^1.1.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.456.0",
@@ -20,13 +28,14 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "typescript": "^5",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
     "eslint": "^8",
-    "eslint-config-next": "15.0.3"
+    "eslint-config-next": "15.0.3",
+    "postcss": "^8",
+    "prisma": "^5.22.0",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
   }
 }
