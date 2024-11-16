@@ -1,6 +1,6 @@
 import React from "react";
 import Navbar from "./_components/Navbar";
-import Container from "@/components/Container";
+import Container from "@/components/global/Container";
 
 type Props = {
   children: React.ReactNode;

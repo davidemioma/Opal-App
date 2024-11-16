@@ -13,17 +13,161 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum PRESET {
+  HD
+  SD
+}
+
+enum WorkspaceType {
+  PERSONAL
+  PUBLIC
+}
+
+enum SUBSCRIPTION_PLAN {
+  PRO
+  FREE
+}
+
 model User {
   id String @id @default(cuid()) 
   clerkId String @unique
-  username String @unique
   email String @unique
-  imageUrl String? @db.Text
-  bio String? @db.Text
+  image String? @db.Text
+  firstname String?
+  lastname String?
+  trial Boolean @default(false)
+  firstView Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([username])
+  studio Media?
+  subscription Subscription?
+  workSpaces Workspace[]
+  comments Comment[]
+  videos Video[]
+  notifications Notification[]
+  sentInvites Invite[] @relation("sender")
+  recievedInvites Invite[] @relation("reciever")
+  workSpacesJoined Member[]
+
   @@index([email])
   @@index([clerkId])
+}
+
+model Subscription {
+  id String @id @default(cuid()) 
+  userId String @unique
+  customerId String? @unique
+  plan SUBSCRIPTION_PLAN @default(FREE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Media {
+  id String @id @default(cuid()) 
+  userId String @unique
+  screen String?
+  mic String?
+  camera String?
+  preset PRESET @default(SD)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade) 
+}
+
+model Workspace {
+  id String @id @default(cuid()) 
+  userId String
+  name String
+  type WorkspaceType @default(PERSONAL)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade) 
+
+  videos Video[]
+  folders Folder[]
+  invites Invite[]
+  members Member[]
+}
+
+model Folder {
+  id String @id @default(cuid()) 
+  workSpaceId String
+  name String @default("Untitled Folder")
+  createdAt DateTime @default(now())
+
+  workSpace Workspace @relation(fields: [workSpaceId], references: [id], onDelete: Cascade)
+ 
+  videos Video[]
+}
+
+model Video {
+  id String @id @default(cuid()) 
+  userId String
+  workspaceId String
+  folderId String
+  source String @unique
+  title String @default("Untilted Video")
+  description String @default("No Description")
+  views Int @default(0)
+  summery String?
+  processing Boolean @default(true)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade) 
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade) 
+  folder Folder @relation(fields: [folderId], references: [id], onDelete: Cascade) 
+
+  comments Comment[]
+}
+
+model Member {
+  id String @id @default(cuid()) 
+  userId String
+  workSpaceId String
+  member Boolean @default(true)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade) 
+  workspace Workspace @relation(fields: [workSpaceId], references: [id], onDelete: Cascade) 
+}
+
+model Comment {
+  id String @id @default(cuid()) 
+  userId String
+  videoId String
+  commentId String?
+  text String
+  createdAt DateTime @default(now())
+
+  replies Comment[] @relation("reply")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade) 
+  comment Comment? @relation("reply", fields: [commentId], references: [id], onDelete: Cascade)
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade) 
+}
+
+model Notification {
+  id String @id @default(cuid()) 
+  userId String
+  content String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade) 
+}
+
+model Invite {
+  id String @id @default(cuid()) 
+  senderId String
+  recieverId String
+  workSpaceId String
+  content String
+  accepted Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  sender User @relation("sender", fields: [senderId], references: [id], onDelete: Cascade)
+  reciever User @relation("reciever", fields: [recieverId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workSpaceId], references: [id], onDelete: Cascade) 
 }
