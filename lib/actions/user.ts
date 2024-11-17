@@ -119,6 +119,7 @@ export const inviteUser = async ({
     const workspace = await prismadb.workspace.findUnique({
       where: {
         id: workspaceId,
+        userId: dbUser.id,
       },
       select: {
         id: true,
@@ -135,7 +136,7 @@ export const inviteUser = async ({
       data: {
         workSpaceId: workspace.id,
         senderId: dbUser.id,
-        recieverId,
+        recieverId: reciever.id,
         content: `You are invited to join ${workspace.name} Workspace, click accept to confirm`,
       },
     });

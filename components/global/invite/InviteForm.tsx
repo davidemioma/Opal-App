@@ -101,6 +101,7 @@ const InviteForm = ({ workspaceId, onClose }: Props) => {
                   onClick={() =>
                     handleInvite({ recieverId: user.id, email: user.email })
                   }
+                  disabled={isPending || loadingUsers || users.length === 0}
                 >
                   <Loader state={isPending} color="#000">
                     Invite
