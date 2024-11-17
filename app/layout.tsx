@@ -2,6 +2,8 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "@/components/ui/sonner";
+import QueryProvider from "@/providers/query-provider";
 
 const font = Manrope({ subsets: ["latin"] });
 
@@ -21,7 +23,11 @@ export default function RootLayout({
         <body
           className={`${font.className} bg-[#171717] text-white antialiased`}
         >
-          {children}
+          <QueryProvider>
+            <Toaster richColors />
+
+            {children}
+          </QueryProvider>
         </body>
       </html>
     </ClerkProvider>

@@ -32,6 +32,16 @@ export const getWorkspaces = async () => {
     select: {
       id: true,
       name: true,
+      type: true,
+      user: {
+        select: {
+          subscription: {
+            select: {
+              plan: true,
+            },
+          },
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
