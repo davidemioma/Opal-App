@@ -31,9 +31,10 @@ type Props = {
       } | null;
     };
   }[];
+  onClose?: () => void;
 };
 
-const Sidebar = ({ currentWorkSpaceId, workspaces }: Props) => {
+const Sidebar = ({ currentWorkSpaceId, workspaces, onClose }: Props) => {
   const router = useRouter();
 
   const pathname = usePathname();
@@ -50,7 +51,11 @@ const Sidebar = ({ currentWorkSpaceId, workspaces }: Props) => {
 
       <Select
         defaultValue={currentWorkSpaceId}
-        onValueChange={(value) => router.push(`/dashboard/${value}`)}
+        onValueChange={(value) => {
+          router.push(`/dashboard/${value}`);
+
+          if (onClose) onClose();
+        }}
       >
         <SelectTrigger className="w-full mb-4">
           <SelectValue
@@ -84,6 +89,7 @@ const Sidebar = ({ currentWorkSpaceId, workspaces }: Props) => {
               href={item.href}
               icon={<item.icon />}
               selected={pathname === item.href}
+              onClose={onClose}
             />
           ))}
         </ul>
@@ -107,6 +113,7 @@ const Sidebar = ({ currentWorkSpaceId, workspaces }: Props) => {
                   </WorkspacePlaceholder>
                 }
                 selected={pathname === `/dashboard/${workspace.id}`}
+                onClose={onClose}
               />
             ))}
           </ul>

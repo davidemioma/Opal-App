@@ -9,11 +9,17 @@ type Props = {
   title: string;
   href: string;
   selected: boolean;
+  onClose?: () => void;
 };
 
-const SidebarItem = ({ href, icon, selected, title }: Props) => {
+const SidebarItem = ({ href, icon, selected, title, onClose }: Props) => {
   return (
-    <li className="cursor-pointer my-[5px]">
+    <li
+      className="cursor-pointer my-[5px]"
+      onClick={() => {
+        if (onClose) onClose();
+      }}
+    >
       <Link
         href={href}
         className={cn(
