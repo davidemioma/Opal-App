@@ -3,6 +3,37 @@
 import prismadb from "../prisma-db";
 import { currentUser } from "@clerk/nextjs/server";
 
+export const getWorkspaceById = async (id: string) => {
+  const user = await currentUser();
+
+  if (!user) {
+    return null;
+  }
+
+  const workspace = await prismadb.workspace.findUnique({
+    where: {
+      id,
+      user: {
+        clerkId: user.id,
+      },
+    },
+    select: {
+      id: true,
+      user: {
+        select: {
+          subscription: {
+            select: {
+              plan: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return workspace;
+};
+
 export const getWorkspaces = async () => {
   const user = await currentUser();
 
