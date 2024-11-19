@@ -24,3 +24,40 @@ export const createFolder = async (workSpaceId: string) => {
     };
   }
 };
+
+export const updateFolder = async ({
+  folderId,
+  name,
+}: {
+  folderId: string;
+  name: string;
+}) => {
+  try {
+    const folder = await prismadb.folder.update({
+      where: {
+        id: folderId,
+      },
+      data: {
+        name,
+      },
+      select: {
+        name: true,
+      },
+    });
+
+    revalidatePath("/");
+
+    return {
+      status: 201,
+      name: folder.name,
+      message: `Folder has been updated!`,
+    };
+  } catch (err) {
+    console.error("Update Folder", err);
+
+    return {
+      status: 500,
+      error: "Something went wrong! Internal server error.",
+    };
+  }
+};
