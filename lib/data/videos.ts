@@ -29,6 +29,17 @@ export const getFolderVideos = cache(
         title: true,
         processing: true,
         createdAt: true,
+        workspace: {
+          select: {
+            name: true,
+          },
+        },
+        folder: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         user: {
           select: {
             firstname: true,
@@ -45,3 +56,58 @@ export const getFolderVideos = cache(
     return videos;
   }
 );
+
+export const getFoldersByWorkspaceId = async (workspaceId: string) => {
+  const folders = await prismadb.folder.findMany({
+    where: {
+      workSpaceId: workspaceId,
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return folders;
+};
+
+export const getWorkspacesOptions = async () => {
+  const user = await currentUser();
+
+  if (!user) {
+    return [];
+  }
+
+  const workspaces = await prismadb.workspace.findMany({
+    where: {
+      OR: [
+        {
+          user: {
+            clerkId: user.id,
+          },
+        },
+        {
+          members: {
+            some: {
+              user: {
+                clerkId: user.id,
+              },
+            },
+          },
+        },
+      ],
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return workspaces;
+};

@@ -26,11 +26,6 @@ export const getFolderInfo = cache(
       select: {
         id: true,
         name: true,
-        _count: {
-          select: {
-            videos: true,
-          },
-        },
       },
     });
 
