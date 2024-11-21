@@ -12,12 +12,6 @@ export const getFolderVideos = cache(
     workspaceId: string;
     folderId: string;
   }) => {
-    const user = await currentUser();
-
-    if (!user) {
-      return [];
-    }
-
     const videos = await prismadb.video.findMany({
       where: {
         workspaceId,
@@ -110,4 +104,45 @@ export const getWorkspacesOptions = async () => {
   });
 
   return workspaces;
+};
+
+export const getPreviewVideo = async (videoId: string) => {
+  const user = await currentUser();
+
+  if (!user) {
+    return null;
+  }
+
+  const video = await prismadb.video.findUnique({
+    where: {
+      id: videoId,
+    },
+    select: {
+      id: true,
+      workspaceId: true,
+      source: true,
+      title: true,
+      processing: true,
+      createdAt: true,
+      description: true,
+      summery: true,
+      views: true,
+      user: {
+        select: {
+          firstname: true,
+          lastname: true,
+          image: true,
+          trial: true,
+          clerkId: true,
+          subscription: {
+            select: {
+              plan: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return { ...video, author: user.id === video?.user.clerkId };
 };

@@ -62,6 +62,7 @@ const InviteForm = ({ workspaceId, onClose }: Props) => {
         placeholder="Search Users..."
         value={query}
         onChange={(e) => onQueryChange(e.target.value)}
+        disabled={isPending}
       />
 
       {loadingUsers ? (

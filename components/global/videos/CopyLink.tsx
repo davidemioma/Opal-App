@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { toast } from "sonner";
 import { Links } from "@/components/icons";
@@ -18,9 +20,11 @@ type Props = {
 
 const CopyLink = ({ videoId, className, variant }: Props) => {
   const onCopyClipboard = () => {
-    navigator.clipboard.writeText(``);
+    navigator.clipboard.writeText(
+      `${process.env.NEXT_PUBLIC_HOST_URL}/preview/${videoId}`
+    );
 
-    toast("Copied", {
+    toast.success("Copied", {
       description: "Link successfully copied",
     });
   };

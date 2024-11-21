@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import Loader from "../loader";
+import { cn } from "@/lib/utils";
 import CopyLink from "./CopyLink";
 import CardMenu from "./CardMenu";
 import { VideoType } from "@/types";
@@ -21,7 +22,10 @@ const VideoCard = ({ workspaceId, video }: Props) => {
   return (
     <Loader
       state={video.processing}
-      className="bg-[#171717] flex items-center justify-center border border-[rgb(37,37,37)] rounded-xl"
+      className={cn(
+        "bg-[#171717] flex items-center justify-center border border-[rgb(37,37,37)] rounded-xl",
+        video.processing && "p-3"
+      )}
     >
       <div className="group bg-[#171717] relative flex flex-col border border-[rgb(37,37,37)] rounded-xl overflow-hidden cursor-pointer">
         <div className="hidden absolute top-3 right-3 z-50 group-hover:inline-flex gap-3">
@@ -48,7 +52,9 @@ const VideoCard = ({ workspaceId, video }: Props) => {
             preload="metadata"
             className="w-full aspect-video opacity-50 z-20"
           >
-            <source src="" />
+            <source
+              src={`${process.env.NEXT_PUBLIC_CLOUD_FRONT_STREAM_URL}/${video.source}#t=1`}
+            />
           </video>
 
           <div className="flex flex-col gap-2 px-5 py-3 z-20">

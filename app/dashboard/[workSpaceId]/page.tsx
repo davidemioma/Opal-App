@@ -1,12 +1,13 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Wrapper from "./_components/Wrapper";
+import Videos from "@/components/global/videos";
 import Folders from "@/components/global/folders";
 import { SUBSCRIPTION_PLAN } from "@prisma/client";
 import PageLoader from "@/components/global/PageLoader";
-import { getWorkspaceById } from "@/lib/data/workspace";
 import CreateWorkspace from "@/components/global/CreateWorkspace";
 import CreateFolder from "@/components/global/folders/CreateFolder";
+import { getWorkspaceById, getWorkspaceVideos } from "@/lib/data/workspace";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default async function Workspace({
@@ -19,6 +20,8 @@ export default async function Workspace({
   if (!workspace) {
     return notFound();
   }
+
+  const videos = await getWorkspaceVideos(workSpaceId);
 
   return (
     <Wrapper workSpaceId={workSpaceId}>
@@ -41,7 +44,7 @@ export default async function Workspace({
               </TabsTrigger>
             </TabsList>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               {workspace.user.subscription?.plan === SUBSCRIPTION_PLAN.PRO && (
                 <CreateWorkspace />
               )}
@@ -50,8 +53,10 @@ export default async function Workspace({
             </div>
           </div>
 
-          <TabsContent value="videos" className="mt-9 flex flex-col gap-4">
+          <TabsContent value="videos" className="mt-9 flex flex-col gap-10">
             <Folders workspaceId={workSpaceId} />
+
+            <Videos videos={videos} workspaceId={workSpaceId} />
           </TabsContent>
         </Tabs>
       </Suspense>

@@ -36,7 +36,7 @@ const CreateFolder = ({ workspaceId }: Props) => {
   return (
     <Button
       onClick={onClick}
-      className="bg-[#1D1D1D] text-[#707070] flex items-center gap-2 py-6 px-4 rounded-2xl disabled:opacity-75 disabled:cursor-not-allowed"
+      className="bg-[#1D1D1D] text-[#707070] text-sm sm:text-base flex items-center gap-2 py-6 px-4 rounded-2xl disabled:opacity-75 disabled:cursor-not-allowed"
       disabled={isPending}
     >
       <FolderPlusDuotine />

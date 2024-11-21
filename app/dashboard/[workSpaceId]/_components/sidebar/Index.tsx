@@ -101,7 +101,7 @@ const Sidebar = ({ currentWorkSpaceId, workspaces, onClose }: Props) => {
 
       {workspaces.length > 0 ? (
         <nav className="w-full">
-          <ul className="h-[150px] overflow-auto overflow-x-hidden fade-layer">
+          <ul className="h-[250px] overflow-auto overflow-x-hidden fade-layer">
             {workspaces.map((workspace) => (
               <SidebarItem
                 key={workspace.id}

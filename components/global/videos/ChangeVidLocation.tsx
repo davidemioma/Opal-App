@@ -32,6 +32,7 @@ type Props = {
   currentWorksapceName: string;
   currentFolderId: string;
   currentFolderName: string;
+  onClose?: () => void;
 };
 
 const ChangeVidLocation = ({
@@ -40,6 +41,7 @@ const ChangeVidLocation = ({
   currentWorksapceName,
   currentFolderId,
   currentFolderName,
+  onClose,
 }: Props) => {
   const pathname = usePathname();
 
@@ -66,7 +68,9 @@ const ChangeVidLocation = ({
 
   const onSubmit = (values: MoveVideoValidator) => {
     startTransition(async () => {
-      await moveVideoHandler(values);
+      await moveVideoHandler(values).then(() => {
+        if (onClose) onClose();
+      });
     });
   };
 
@@ -121,7 +125,11 @@ const ChangeVidLocation = ({
                         ))}
                       </SelectContent>
                     ) : fetchingWorkspaces ? (
-                      <Skeleton className="w-full h-[40px] rounded-xl" />
+                      <div className="flex flex-col gap-2">
+                        <Skeleton className="w-[30%] h-4 rounded-xl" />
+
+                        <Skeleton className="w-full h-8 rounded-xl" />
+                      </div>
                     ) : (
                       <p className="text-[#a4a4a4] text-sm">
                         No workspaces available
@@ -161,7 +169,11 @@ const ChangeVidLocation = ({
                           ))}
                         </SelectContent>
                       ) : fetchingFolders ? (
-                        <Skeleton className="w-full h-[40px] rounded-xl" />
+                        <div className="flex flex-col gap-2">
+                          <Skeleton className="w-[30%] h-4 rounded-xl" />
+
+                          <Skeleton className="w-full h-8 rounded-xl" />
+                        </div>
                       ) : (
                         <p className="text-[#a4a4a4] text-sm">
                           This workspace has no folders
@@ -176,7 +188,11 @@ const ChangeVidLocation = ({
             )}
           </div>
 
-          <Button type="submit">
+          <Button
+            type="submit"
+            className="bg-muted w-full text-black hover:bg-muted-foreground font-semibold"
+            disabled={isPending || fetchingFolders || fetchingWorkspaces}
+          >
             <Loader state={isPending} color="#000">
               Transfer
             </Loader>

@@ -1,3 +1,5 @@
+import { SUBSCRIPTION_PLAN } from "@prisma/client";
+
 export type VideoType = {
   id: string;
   createdAt: Date;
@@ -16,4 +18,27 @@ export type VideoType = {
     id: string;
     name: string;
   };
+};
+
+export type PreviewVideoType = {
+  id?: string | undefined;
+  workspaceId?: string | undefined;
+  createdAt?: Date | undefined;
+  source?: string | undefined;
+  title?: string | undefined;
+  description?: string | undefined;
+  views?: number | undefined;
+  summery?: string | null;
+  processing?: boolean | undefined;
+  user?: {
+    subscription: {
+      plan: SUBSCRIPTION_PLAN;
+    } | null;
+    clerkId: string;
+    image: string | null;
+    firstname: string | null;
+    lastname: string | null;
+    trial: boolean;
+  };
+  author: boolean;
 };

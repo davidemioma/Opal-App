@@ -1,5 +1,6 @@
 "use server";
 
+import { cache } from "react";
 import prismadb from "../prisma-db";
 import { currentUser } from "@clerk/nextjs/server";
 
@@ -81,3 +82,42 @@ export const getWorkspaces = async () => {
 
   return workspaces;
 };
+
+export const getWorkspaceVideos = cache(async (workspaceId: string) => {
+  const videos = await prismadb.video.findMany({
+    where: {
+      workspaceId,
+    },
+    select: {
+      id: true,
+      source: true,
+      title: true,
+      processing: true,
+      createdAt: true,
+      workspace: {
+        select: {
+          name: true,
+        },
+      },
+      folder: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      user: {
+        select: {
+          firstname: true,
+          lastname: true,
+          image: true,
+        },
+      },
+    },
+    take: 10,
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return videos;
+});

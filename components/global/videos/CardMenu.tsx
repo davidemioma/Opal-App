@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { Move } from "lucide-react";
 import ChangeVidLocation from "./ChangeVidLocation";
 import {
@@ -25,8 +27,10 @@ const CardMenu = ({
   currentFolderId,
   currentFolderName,
 }: Props) => {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger>
         <Move size={20} fill="#4f4f4f" className="text-[#4f4f4f]" />
       </DialogTrigger>
@@ -47,6 +51,7 @@ const CardMenu = ({
           currentWorksapceName={currentWorkspaceName}
           currentFolderId={currentFolderId}
           currentFolderName={currentFolderName}
+          onClose={() => setOpen(false)}
         />
       </DialogContent>
     </Dialog>

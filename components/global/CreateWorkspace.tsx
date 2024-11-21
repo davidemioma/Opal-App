@@ -66,7 +66,7 @@ const CreateWorkspace = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="bg-[#1D1D1D] text-[#707070] flex items-center gap-2 p-3 rounded-2xl">
+      <DialogTrigger className="bg-[#1D1D1D] text-sm sm:text-base text-[#707070] flex items-center gap-2 p-3 rounded-2xl">
         <FolderPlusDuotine />
         Create Workspace
       </DialogTrigger>
