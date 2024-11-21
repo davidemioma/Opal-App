@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Logo from "./Logo";
 import SidebarItem from "./SidebarItem";
 import { MENU_ITEMS } from "@/lib/constants";
 import Invite from "@/components/global/invite";
@@ -10,6 +9,7 @@ import PaymentBtn from "@/components/global/PaymentBtn";
 import GlobalCard from "@/components/global/GlobalCard";
 import { usePathname, useRouter } from "next/navigation";
 import WorkspacePlaceholder from "./WorkspacePlaceholder";
+import Logo from "../../../../../components/global/Logo";
 import { SUBSCRIPTION_PLAN, WorkspaceType } from "@prisma/client";
 import {
   Select,
