@@ -40,3 +40,22 @@ export const getSearchedUsers = async (query: string) => {
 
   return users;
 };
+
+export const getUserSettings = async () => {
+  const user = await currentUser();
+
+  if (!user) {
+    return null;
+  }
+
+  const userSettings = await prismadb.user.findUnique({
+    where: {
+      clerkId: user.id,
+    },
+    select: {
+      firstView: true,
+    },
+  });
+
+  return userSettings;
+};

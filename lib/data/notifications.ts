@@ -1,9 +1,10 @@
 "use server";
 
+import { cache } from "react";
 import prismadb from "../prisma-db";
 import { currentUser } from "@clerk/nextjs/server";
 
-export const getUserNotifications = async () => {
+export const getUserNotifications = cache(async () => {
   const user = await currentUser();
 
   if (!user) {
@@ -16,10 +17,14 @@ export const getUserNotifications = async () => {
         clerkId: user.id,
       },
     },
+    select: {
+      id: true,
+      content: true,
+    },
     orderBy: {
       createdAt: "desc",
     },
   });
 
   return notifications;
-};
+});

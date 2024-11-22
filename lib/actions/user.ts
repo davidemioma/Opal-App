@@ -1,6 +1,7 @@
 "use server";
 
 import prismadb from "../prisma-db";
+import { revalidatePath } from "next/cache";
 import { currentUser } from "@clerk/nextjs/server";
 
 export const onBoardUser = async () => {
@@ -164,6 +165,48 @@ export const inviteUser = async ({
     };
   } catch (err) {
     console.error("Invite User", err);
+
+    return {
+      status: 500,
+      error: "Something went wrong! Internal server error.",
+    };
+  }
+};
+
+export const updateUserFirstView = async ({
+  firstView,
+  pathname,
+}: {
+  firstView: boolean;
+  pathname?: string;
+}) => {
+  try {
+    const user = await currentUser();
+
+    if (!user) {
+      return { status: 401, error: "Unauthorized, Youn need to sign in!" };
+    }
+
+    // Change value
+    await prismadb.user.update({
+      where: {
+        clerkId: user.id,
+      },
+      data: {
+        firstView: !firstView,
+      },
+    });
+
+    if (pathname) {
+      revalidatePath(pathname);
+    }
+
+    return {
+      status: 200,
+      message: "Settings Updated",
+    };
+  } catch (err) {
+    console.error("Change User First View", err);
 
     return {
       status: 500,

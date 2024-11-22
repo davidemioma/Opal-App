@@ -3,22 +3,24 @@
 import React from "react";
 import Logo from "../Logo";
 import Link from "next/link";
+import AITools from "./AITools";
 import CopyLink from "./CopyLink";
 import RichLink from "./RichLink";
+import Activitity from "./Activitity";
 import { PreviewVideoType } from "@/types";
-import { truncateString } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { cn, truncateString } from "@/lib/utils";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, Download, User } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AITools from "./AITools";
 
 type Props = {
   video: PreviewVideoType;
+  showNav?: boolean;
 };
 
-const Preview = ({ video }: Props) => {
+const Preview = ({ video, showNav }: Props) => {
   const { user } = useUser();
 
   const daysAgo = video.createdAt
@@ -30,34 +32,41 @@ const Preview = ({ video }: Props) => {
 
   return (
     <>
-      <div className="bg-[#111111] flex items-center justify-between px-5 lg:px-10 py-4">
-        <Logo className="mb-0 p-0" />
+      {showNav && (
+        <div className="bg-[#111111] flex items-center justify-between px-5 lg:px-10 py-4">
+          <Logo className="mb-0 p-0" />
 
-        {user ? (
-          <div className="flex items-center gap-3">
-            <UserButton />
+          {user ? (
+            <div className="flex items-center gap-3">
+              <UserButton />
 
-            <Link href="/dashboard">
-              <Button
-                className="text-sm md:text-base flex gap-2"
-                variant="secondary"
-              >
-                Dashboard
-                <ArrowRight fill="#000" />
+              <Link href="/dashboard">
+                <Button
+                  className="text-sm md:text-base flex gap-2"
+                  variant="secondary"
+                >
+                  Dashboard
+                  <ArrowRight fill="#000" />
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <Link href="/auth/sign-in">
+              <Button className="text-sm md:text-base flex gap-2">
+                <User fill="#000" />
+                Login
               </Button>
             </Link>
-          </div>
-        ) : (
-          <Link href="/auth/sign-in">
-            <Button className="text-sm md:text-base flex gap-2">
-              <User fill="#000" />
-              Login
-            </Button>
-          </Link>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
-      <div className="grid lg:grid-cols-3 gap-5 p-5 lg:p-10 overflow-y-auto">
+      <div
+        className={cn(
+          "grid lg:grid-cols-3 gap-5 overflow-y-auto",
+          showNav ? "p-5 lg:p-10" : "px-5 lg:px-10 pb-5"
+        )}
+      >
         <div className="lg:col-span-2 flex flex-col gap-10">
           <div className="space-y-2">
             <div className="flex items-start justify-between gap-5">
@@ -138,9 +147,18 @@ const Preview = ({ video }: Props) => {
                 />
               </TabsContent>
 
-              <TabsContent value="Transcript">Transcript</TabsContent>
+              <TabsContent value="Transcript">
+                <p className="text-[#a7a7a7]">
+                  {video.summery || "No summary available"}
+                </p>
+              </TabsContent>
 
-              <TabsContent value="Activity">Activity</TabsContent>
+              <TabsContent value="Activity">
+                <Activitity
+                  videoId={video.id!}
+                  author={video.user?.firstname || "Unknown"}
+                />
+              </TabsContent>
             </Tabs>
           </div>
         </div>

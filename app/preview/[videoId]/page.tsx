@@ -16,7 +16,7 @@ export default async function PreviewPage({
 
   return (
     <Suspense fallback={<PreviewSkeleton />}>
-      <Preview video={video} />
+      <Preview video={video} showNav />
     </Suspense>
   );
 }
