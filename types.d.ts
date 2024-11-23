@@ -1,4 +1,4 @@
-import { SUBSCRIPTION_PLAN } from "@prisma/client";
+import { Comment, SUBSCRIPTION_PLAN } from "@prisma/client";
 
 export type VideoType = {
   id: string;
@@ -41,4 +41,12 @@ export type PreviewVideoType = {
     trial: boolean;
   };
   author: boolean;
+};
+
+export type CommentType = Comment & {
+  user: {
+    image: string | null;
+    firstname: string | null;
+    lastname: string | null;
+  };
 };

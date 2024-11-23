@@ -156,7 +156,10 @@ const Preview = ({ video, showNav }: Props) => {
               <TabsContent value="Activity">
                 <Activitity
                   videoId={video.id!}
-                  author={video.user?.firstname || "Unknown"}
+                  author={
+                    `${video.user?.firstname} ${video.user?.lastname}` ||
+                    "Unknown"
+                  }
                 />
               </TabsContent>
             </Tabs>
