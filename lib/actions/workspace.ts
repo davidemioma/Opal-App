@@ -91,17 +91,24 @@ export const createWorkspace = async (values: WorkspaceValidator) => {
       return { status: 400, error: "Invalid fields!" };
     }
 
-    await prismadb.workspace.create({
+    const workspace = await prismadb.workspace.create({
       data: {
         ...values,
         userId: dbUser.id,
         type: "PUBLIC",
       },
+      select: {
+        id: true,
+      },
     });
 
     revalidatePath("/");
 
-    return { status: 201, message: `Workspace ${values.name} was created!` };
+    return {
+      status: 201,
+      workspaceId: workspace.id,
+      message: `Workspace ${values.name} was created!`,
+    };
   } catch (err) {
     console.error("Create Workspace", err);
 

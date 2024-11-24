@@ -89,7 +89,7 @@ export const getWorkspaces = async () => {
       },
     },
     orderBy: {
-      createdAt: "desc",
+      createdAt: "asc",
     },
   });
 

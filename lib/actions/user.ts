@@ -24,6 +24,7 @@ export const acceptInvitation = async (inviteId: string) => {
       select: {
         id: true,
         workSpaceId: true,
+        accepted: true,
       },
     });
 
@@ -31,30 +32,35 @@ export const acceptInvitation = async (inviteId: string) => {
       return { status: 404, error: "Cannot find invitation!" };
     }
 
-    const res = await prismadb.$transaction(async (prisma) => {
-      // Add user to workspace
-      await prisma.user.update({
-        where: {
-          clerkId: user.id,
-        },
-        data: {
-          workSpacesJoined: {
-            create: {
-              workSpaceId: invitation.workSpaceId,
-            },
+    if (invitation.accepted) {
+      return {
+        status: 200,
+        workspaceId: invitation.workSpaceId,
+      };
+    }
+
+    // Add user to workspace
+    await prismadb.user.update({
+      where: {
+        clerkId: user.id,
+      },
+      data: {
+        workSpacesJoined: {
+          create: {
+            workSpaceId: invitation.workSpaceId,
           },
         },
-      });
+      },
+    });
 
-      // Update invitation
-      await prisma.invite.update({
-        where: {
-          id: invitation.id,
-        },
-        data: {
-          accepted: true,
-        },
-      });
+    // Update invitation
+    await prismadb.invite.update({
+      where: {
+        id: invitation.id,
+      },
+      data: {
+        accepted: true,
+      },
     });
 
     return {

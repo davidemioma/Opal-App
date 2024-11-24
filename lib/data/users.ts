@@ -26,14 +26,9 @@ export const getSearchedUsers = async ({
       NOT: {
         clerkId: user.id,
       },
-      workSpaces: {
-        none: {
-          id: workspaceId,
-        },
-      },
       workSpacesJoined: {
         none: {
-          id: workspaceId,
+          workSpaceId: workspaceId,
         },
       },
     },

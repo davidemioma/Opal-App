@@ -4,6 +4,7 @@ import React, { useState, useTransition } from "react";
 import Loader from "./loader";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,6 +32,8 @@ import {
 } from "@/components/ui/form";
 
 const CreateWorkspace = () => {
+  const router = useRouter();
+
   const [open, setOpen] = useState(false);
 
   const [isPending, startTransition] = useTransition();
@@ -55,6 +58,8 @@ const CreateWorkspace = () => {
           toast.success(data.message);
 
           setOpen(false);
+
+          router.push(`/dashboard/${data.workspaceId}`);
         })
         .catch((err) => {
           toast.error(
