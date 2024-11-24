@@ -1,7 +1,7 @@
 "use server";
 
 import prismadb from "../prisma-db";
-import { currentUser } from "@clerk/nextjs/server";
+import { getCurrentUser } from "./auth";
 
 export const getSearchedUsers = async ({
   query,
@@ -10,7 +10,7 @@ export const getSearchedUsers = async ({
   query: string;
   workspaceId: string;
 }) => {
-  const user = await currentUser();
+  const user = await getCurrentUser();
 
   if (!user) {
     return [];
@@ -24,7 +24,7 @@ export const getSearchedUsers = async ({
         { lastname: { contains: query } },
       ],
       NOT: {
-        clerkId: user.id,
+        id: user.id,
       },
       workSpacesJoined: {
         none: {
@@ -53,7 +53,7 @@ export const getSearchedUsers = async ({
 };
 
 export const getUserSettings = async () => {
-  const user = await currentUser();
+  const user = await getCurrentUser();
 
   if (!user) {
     return null;
@@ -61,7 +61,7 @@ export const getUserSettings = async () => {
 
   const userSettings = await prismadb.user.findUnique({
     where: {
-      clerkId: user.id,
+      id: user.id,
     },
     select: {
       firstView: true,

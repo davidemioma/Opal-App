@@ -8,11 +8,11 @@ import { Bot, FileTextIcon, Pencil, StarsIcon } from "lucide-react";
 
 type Props = {
   videoId: string;
-  plan: SUBSCRIPTION_PLAN;
+  plan: SUBSCRIPTION_PLAN | null;
   trial: boolean;
 };
 
-const AITools = ({ plan, trial, videoId }: Props) => {
+const AITools = ({ plan, trial }: Props) => {
   return (
     <div className="bg-[#1D1D1D] flex flex-col gap-6 p-5 rounded-xl">
       <div className="flex lg:flex-col gap-4">

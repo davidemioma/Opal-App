@@ -2,7 +2,7 @@
 
 import prismadb from "../prisma-db";
 import { revalidatePath } from "next/cache";
-import { currentUser } from "@clerk/nextjs/server";
+import { getCurrentUser } from "../data/auth";
 
 export const changeVideoLocation = async ({
   videoId,
@@ -16,7 +16,7 @@ export const changeVideoLocation = async ({
   pathname?: string;
 }) => {
   try {
-    const user = await currentUser();
+    const user = await getCurrentUser();
 
     if (!user) {
       return { status: 401, error: "Unauthorized, Youn need to sign in!" };
@@ -29,14 +29,14 @@ export const changeVideoLocation = async ({
         OR: [
           {
             user: {
-              clerkId: user.id, // Check if the user is the creator of the workspace
+              id: user.id, // Check if the user is the creator of the workspace
             },
           },
           {
             members: {
               some: {
                 user: {
-                  clerkId: user.id, // Check if the user is a member of the workspace
+                  id: user.id, // Check if the user is a member of the workspace
                 },
               },
             },

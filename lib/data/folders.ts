@@ -2,7 +2,7 @@
 
 import { cache } from "react";
 import prismadb from "../prisma-db";
-import { currentUser } from "@clerk/nextjs/server";
+import { getCurrentUser } from "./auth";
 
 export const getFolderInfo = cache(
   async ({
@@ -12,7 +12,7 @@ export const getFolderInfo = cache(
     workSpaceId: string;
     folderId: string;
   }) => {
-    const user = await currentUser();
+    const user = await getCurrentUser();
 
     if (!user) {
       return null;

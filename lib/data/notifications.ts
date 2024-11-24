@@ -2,10 +2,10 @@
 
 import { cache } from "react";
 import prismadb from "../prisma-db";
-import { currentUser } from "@clerk/nextjs/server";
+import { getCurrentUser } from "./auth";
 
 export const getUserNotifications = cache(async () => {
-  const user = await currentUser();
+  const user = await getCurrentUser();
 
   if (!user) {
     return [];
@@ -14,7 +14,7 @@ export const getUserNotifications = cache(async () => {
   const notifications = await prismadb.notification.findMany({
     where: {
       user: {
-        clerkId: user.id,
+        id: user.id,
       },
     },
     select: {

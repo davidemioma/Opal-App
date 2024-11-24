@@ -142,8 +142,8 @@ const Preview = ({ video, showNav }: Props) => {
               <TabsContent value="Ai tools">
                 <AITools
                   videoId={video.id as string}
-                  trial={video.user?.trial!}
-                  plan={video.user?.subscription?.plan!}
+                  trial={video.user?.trial || false}
+                  plan={video.user?.subscription?.plan || null}
                 />
               </TabsContent>
 

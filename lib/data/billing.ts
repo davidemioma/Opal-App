@@ -1,10 +1,10 @@
 "use server";
 
 import prismadb from "../prisma-db";
-import { currentUser } from "@clerk/nextjs/server";
+import { getCurrentUser } from "./auth";
 
 export const getPaymentInfo = async () => {
-  const user = await currentUser();
+  const user = await getCurrentUser();
 
   if (!user) {
     return null;
@@ -12,7 +12,7 @@ export const getPaymentInfo = async () => {
 
   const paymentInfo = await prismadb.user.findUnique({
     where: {
-      clerkId: user.id,
+      id: user.id,
     },
     select: {
       subscription: {

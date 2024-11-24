@@ -47,7 +47,7 @@ export default async function NotificationsPage({
               >
                 <Avatar>
                   <AvatarFallback>
-                    <User />
+                    <User className="text-black" />
                   </AvatarFallback>
                 </Avatar>
 

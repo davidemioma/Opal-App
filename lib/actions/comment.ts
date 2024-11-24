@@ -2,7 +2,7 @@
 
 import prismadb from "../prisma-db";
 import { revalidatePath } from "next/cache";
-import { currentUser } from "@clerk/nextjs/server";
+import { getCurrentUser } from "../data/auth";
 
 export const sendComment = async ({
   commentId,
@@ -16,29 +16,15 @@ export const sendComment = async ({
   paths?: string[];
 }) => {
   try {
-    const user = await currentUser();
+    const user = await getCurrentUser();
 
     if (!user) {
       return { status: 401, error: "Unauthorized, Youn need to sign in!" };
     }
 
-    // Check if user in the database
-    const dbUser = await prismadb.user.findUnique({
-      where: {
-        clerkId: user.id,
-      },
-      select: {
-        id: true,
-      },
-    });
-
-    if (!dbUser) {
-      return { status: 404, error: "Unauthorized, User not found!" };
-    }
-
     await prismadb.comment.create({
       data: {
-        userId: dbUser.id,
+        userId: user.id,
         videoId,
         commentId: commentId || undefined,
         text,

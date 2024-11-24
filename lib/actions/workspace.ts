@@ -2,13 +2,13 @@
 
 import prismadb from "../prisma-db";
 import { revalidatePath } from "next/cache";
-import { currentUser } from "@clerk/nextjs/server";
+import { getCurrentUser } from "../data/auth";
 import { SUBSCRIPTION_PLAN } from "@prisma/client";
 import { WorkspaceValidator, WorkspaceSchema } from "../validators/workspace";
 
 export const verifyUser = async (workspaceId: string) => {
   try {
-    const user = await currentUser();
+    const user = await getCurrentUser();
 
     if (!user) {
       return { status: 401, error: "Unauthorized, Youn need to sign in!" };
@@ -20,14 +20,14 @@ export const verifyUser = async (workspaceId: string) => {
         OR: [
           {
             user: {
-              clerkId: user.id, // Check if the user is the creator of the workspace
+              id: user.id, // Check if the user is the creator of the workspace
             },
           },
           {
             members: {
               some: {
                 user: {
-                  clerkId: user.id, // Check if the user is a member of the workspace
+                  id: user.id, // Check if the user is a member of the workspace
                 },
               },
             },
@@ -53,32 +53,13 @@ export const verifyUser = async (workspaceId: string) => {
 
 export const createWorkspace = async (values: WorkspaceValidator) => {
   try {
-    const user = await currentUser();
+    const user = await getCurrentUser();
 
     if (!user) {
       return { status: 401, error: "Unauthorized, Youn need to sign in!" };
     }
 
-    // Check if user in the database
-    const dbUser = await prismadb.user.findUnique({
-      where: {
-        clerkId: user.id,
-      },
-      select: {
-        id: true,
-        subscription: {
-          select: {
-            plan: true,
-          },
-        },
-      },
-    });
-
-    if (!dbUser) {
-      return { status: 404, error: "User not found!" };
-    }
-
-    if (dbUser.subscription?.plan !== SUBSCRIPTION_PLAN.PRO) {
+    if (user.subscription?.plan !== SUBSCRIPTION_PLAN.PRO) {
       return {
         status: 401,
         error: "You need to be on the PRO plan to create a worksapce!",
@@ -94,7 +75,7 @@ export const createWorkspace = async (values: WorkspaceValidator) => {
     const workspace = await prismadb.workspace.create({
       data: {
         ...values,
-        userId: dbUser.id,
+        userId: user.id,
         type: "PUBLIC",
       },
       select: {

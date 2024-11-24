@@ -3,11 +3,12 @@
 import prismadb from "../prisma-db";
 import { sendEmail } from "../mail";
 import { revalidatePath } from "next/cache";
+import { getCurrentUser } from "../data/auth";
 import { currentUser } from "@clerk/nextjs/server";
 
 export const acceptInvitation = async (inviteId: string) => {
   try {
-    const user = await currentUser();
+    const user = await getCurrentUser();
 
     if (!user) {
       return { status: 401, error: "Unauthorized, Youn need to sign in!" };
@@ -18,7 +19,7 @@ export const acceptInvitation = async (inviteId: string) => {
       where: {
         id: inviteId,
         reciever: {
-          clerkId: user.id,
+          id: user.id,
         },
       },
       select: {
@@ -42,7 +43,7 @@ export const acceptInvitation = async (inviteId: string) => {
     // Add user to workspace
     await prismadb.user.update({
       where: {
-        clerkId: user.id,
+        id: user.id,
       },
       data: {
         workSpacesJoined: {
@@ -149,26 +150,10 @@ export const inviteUser = async ({
   recieverId: string;
 }) => {
   try {
-    const user = await currentUser();
+    const user = await getCurrentUser();
 
     if (!user) {
       return { status: 401, error: "Unauthorized, Youn need to sign in!" };
-    }
-
-    // Check if user in the database
-    const dbUser = await prismadb.user.findUnique({
-      where: {
-        clerkId: user.id,
-      },
-      select: {
-        id: true,
-        firstname: true,
-        lastname: true,
-      },
-    });
-
-    if (!dbUser) {
-      return { status: 404, error: "User not found!" };
     }
 
     // Check if reciever in the database
@@ -192,7 +177,7 @@ export const inviteUser = async ({
     const workspace = await prismadb.workspace.findUnique({
       where: {
         id: workspaceId,
-        userId: dbUser.id,
+        userId: user.id,
       },
       select: {
         id: true,
@@ -208,7 +193,7 @@ export const inviteUser = async ({
     const invitation = await prismadb.invite.create({
       data: {
         workSpaceId: workspace.id,
-        senderId: dbUser.id,
+        senderId: user.id,
         recieverId: reciever.id,
         content: `You are invited to join ${workspace.name} Workspace, click accept to confirm`,
       },
@@ -220,7 +205,7 @@ export const inviteUser = async ({
     // Create Notification for sender and reciever
     await prismadb.notification.create({
       data: {
-        userId: dbUser.id,
+        userId: user.id,
         content: `invitation to ${workspace.name} has been sent to ${reciever.firstname} ${reciever.lastname}`,
       },
     });
@@ -228,7 +213,7 @@ export const inviteUser = async ({
     await prismadb.notification.create({
       data: {
         userId: reciever.id,
-        content: `${dbUser.firstname} ${dbUser.lastname} invited you into ${workspace.name}`,
+        content: `${user.firstname} ${user.lastname} invited you into ${workspace.name}`,
       },
     });
 
@@ -271,7 +256,7 @@ export const updateUserFirstView = async ({
   pathname?: string;
 }) => {
   try {
-    const user = await currentUser();
+    const user = await getCurrentUser();
 
     if (!user) {
       return { status: 401, error: "Unauthorized, Youn need to sign in!" };
@@ -280,7 +265,7 @@ export const updateUserFirstView = async ({
     // Change value
     await prismadb.user.update({
       where: {
-        clerkId: user.id,
+        id: user.id,
       },
       data: {
         firstView: !firstView,

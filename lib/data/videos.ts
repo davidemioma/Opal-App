@@ -2,7 +2,7 @@
 
 import { cache } from "react";
 import prismadb from "../prisma-db";
-import { currentUser } from "@clerk/nextjs/server";
+import { getCurrentUser } from "./auth";
 
 export const getFolderVideos = cache(
   async ({
@@ -69,9 +69,9 @@ export const getFoldersByWorkspaceId = async (workspaceId: string) => {
 };
 
 export const getWorkspacesOptions = async () => {
-  const user = await currentUser();
+  const currentUser = await getCurrentUser();
 
-  if (!user) {
+  if (!currentUser) {
     return [];
   }
 
@@ -80,14 +80,14 @@ export const getWorkspacesOptions = async () => {
       OR: [
         {
           user: {
-            clerkId: user.id,
+            id: currentUser.id,
           },
         },
         {
           members: {
             some: {
               user: {
-                clerkId: user.id,
+                id: currentUser.id,
               },
             },
           },
@@ -107,15 +107,20 @@ export const getWorkspacesOptions = async () => {
 };
 
 export const getPreviewVideo = async (videoId: string) => {
-  const user = await currentUser();
+  const currentUser = await getCurrentUser();
 
-  if (!user) {
+  if (!currentUser) {
     return null;
   }
 
-  const video = await prismadb.video.findUnique({
+  const video = await prismadb.video.update({
     where: {
       id: videoId,
+    },
+    data: {
+      views: {
+        increment: 1,
+      },
     },
     select: {
       id: true,
@@ -129,6 +134,7 @@ export const getPreviewVideo = async (videoId: string) => {
       views: true,
       user: {
         select: {
+          id: true,
           firstname: true,
           lastname: true,
           image: true,
@@ -144,5 +150,5 @@ export const getPreviewVideo = async (videoId: string) => {
     },
   });
 
-  return { ...video, author: user.id === video?.user.clerkId };
+  return { ...video, author: currentUser.id === video?.user.id };
 };

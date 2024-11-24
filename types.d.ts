@@ -34,6 +34,7 @@ export type PreviewVideoType = {
     subscription: {
       plan: SUBSCRIPTION_PLAN;
     } | null;
+    id: string;
     clerkId: string;
     image: string | null;
     firstname: string | null;

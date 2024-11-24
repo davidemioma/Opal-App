@@ -2,10 +2,10 @@
 
 import { cache } from "react";
 import prismadb from "../prisma-db";
-import { currentUser } from "@clerk/nextjs/server";
+import { getCurrentUser } from "./auth";
 
 export const getWorkspaceById = async (id: string) => {
-  const user = await currentUser();
+  const user = await getCurrentUser();
 
   if (!user) {
     return null;
@@ -17,14 +17,14 @@ export const getWorkspaceById = async (id: string) => {
       OR: [
         {
           user: {
-            clerkId: user.id,
+            id: user.id,
           },
         },
         {
           members: {
             some: {
               user: {
-                clerkId: user.id,
+                id: user.id,
               },
             },
           },
@@ -49,7 +49,7 @@ export const getWorkspaceById = async (id: string) => {
 };
 
 export const getWorkspaces = async () => {
-  const user = await currentUser();
+  const user = await getCurrentUser();
 
   if (!user) {
     return [];
@@ -60,14 +60,14 @@ export const getWorkspaces = async () => {
       OR: [
         {
           user: {
-            clerkId: user.id,
+            id: user.id,
           },
         },
         {
           members: {
             some: {
               user: {
-                clerkId: user.id,
+                id: user.id,
               },
             },
           },
