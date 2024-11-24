@@ -1,8 +1,75 @@
 "use server";
 
 import prismadb from "../prisma-db";
+import { sendEmail } from "../mail";
 import { revalidatePath } from "next/cache";
 import { currentUser } from "@clerk/nextjs/server";
+
+export const acceptInvitation = async (inviteId: string) => {
+  try {
+    const user = await currentUser();
+
+    if (!user) {
+      return { status: 401, error: "Unauthorized, Youn need to sign in!" };
+    }
+
+    // Check if invitation exists
+    const invitation = await prismadb.invite.findUnique({
+      where: {
+        id: inviteId,
+        reciever: {
+          clerkId: user.id,
+        },
+      },
+      select: {
+        id: true,
+        workSpaceId: true,
+      },
+    });
+
+    if (!invitation) {
+      return { status: 404, error: "Cannot find invitation!" };
+    }
+
+    const res = await prismadb.$transaction(async (prisma) => {
+      // Add user to workspace
+      await prisma.user.update({
+        where: {
+          clerkId: user.id,
+        },
+        data: {
+          workSpacesJoined: {
+            create: {
+              workSpaceId: invitation.workSpaceId,
+            },
+          },
+        },
+      });
+
+      // Update invitation
+      await prisma.invite.update({
+        where: {
+          id: invitation.id,
+        },
+        data: {
+          accepted: true,
+        },
+      });
+    });
+
+    return {
+      status: 200,
+      workspaceId: invitation.workSpaceId,
+    };
+  } catch (err) {
+    console.error("Accept Invite", err);
+
+    return {
+      status: 500,
+      error: "Something went wrong! Internal server error.",
+    };
+  }
+};
 
 export const onBoardUser = async () => {
   try {
@@ -27,37 +94,37 @@ export const onBoardUser = async () => {
 
     if (dbUser) {
       return { status: 200, user: dbUser };
-    } else {
-      const newUser = await prismadb.user.create({
-        data: {
-          clerkId: user.id,
-          email: user.emailAddresses[0].emailAddress,
-          firstname: user.firstName,
-          lastname: user.lastName,
-          image: user.imageUrl,
-          studio: {
-            create: {},
-          },
-          subscription: {
-            create: {},
-          },
-          workSpaces: {
-            create: {
-              name: `${user.firstName}'s Workspace`,
-            },
-          },
-        },
-        select: {
-          workSpaces: {
-            select: {
-              id: true,
-            },
-          },
-        },
-      });
-
-      return { status: 201, user: newUser };
     }
+
+    const newUser = await prismadb.user.create({
+      data: {
+        clerkId: user.id,
+        email: user.emailAddresses[0].emailAddress,
+        firstname: user.firstName,
+        lastname: user.lastName,
+        image: user.imageUrl,
+        studio: {
+          create: {},
+        },
+        subscription: {
+          create: {},
+        },
+        workSpaces: {
+          create: {
+            name: `${user.firstName}'s Workspace`,
+          },
+        },
+      },
+      select: {
+        workSpaces: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    return { status: 201, user: newUser };
   } catch (err) {
     console.error("OnBoard User", err);
 
@@ -71,11 +138,9 @@ export const onBoardUser = async () => {
 export const inviteUser = async ({
   workspaceId,
   recieverId,
-  email,
 }: {
   workspaceId: string;
   recieverId: string;
-  email: string;
 }) => {
   try {
     const user = await currentUser();
@@ -107,6 +172,7 @@ export const inviteUser = async ({
       },
       select: {
         id: true,
+        email: true,
         firstname: true,
         lastname: true,
       },
@@ -133,12 +199,15 @@ export const inviteUser = async ({
     }
 
     // Send Invite
-    await prismadb.invite.create({
+    const invitation = await prismadb.invite.create({
       data: {
         workSpaceId: workspace.id,
         senderId: dbUser.id,
         recieverId: reciever.id,
         content: `You are invited to join ${workspace.name} Workspace, click accept to confirm`,
+      },
+      select: {
+        id: true,
       },
     });
 
@@ -157,11 +226,26 @@ export const inviteUser = async ({
       },
     });
 
+    revalidatePath(`dashboard/${workspace}`);
+
+    revalidatePath(`dashboard/${workspace}/notifications`);
+
     // Send email notification to reciever as well.
+    const data = await sendEmail({
+      to: reciever.email,
+      subject: "You got an invitation",
+      text: "You are invited to join ${workspace.name} Workspace, click accept to confirm",
+      html: `<a href="${process.env.NEXT_PUBLIC_HOST_URL}/invite/${invitation.id}" style="background-color: #000; padding: 5px 10px; border-radius: 10px;">Accept Invite</a>`,
+    });
+
+    const emailErr =
+      "We were unable to send you an email due to our server. Check notifications for your invite. Thank you for your understanding.";
 
     return {
       status: 200,
-      message: `Invitation sent to ${reciever.firstname} ${reciever.lastname}`,
+      message: data.error
+        ? emailErr
+        : `Invitation sent to ${reciever.firstname} ${reciever.lastname}.`,
     };
   } catch (err) {
     console.error("Invite User", err);

@@ -3,7 +3,13 @@
 import prismadb from "../prisma-db";
 import { currentUser } from "@clerk/nextjs/server";
 
-export const getSearchedUsers = async (query: string) => {
+export const getSearchedUsers = async ({
+  query,
+  workspaceId,
+}: {
+  query: string;
+  workspaceId: string;
+}) => {
   const user = await currentUser();
 
   if (!user) {
@@ -19,6 +25,16 @@ export const getSearchedUsers = async (query: string) => {
       ],
       NOT: {
         clerkId: user.id,
+      },
+      workSpaces: {
+        none: {
+          id: workspaceId,
+        },
+      },
+      workSpacesJoined: {
+        none: {
+          id: workspaceId,
+        },
       },
     },
     select: {

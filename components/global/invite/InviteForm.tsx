@@ -19,22 +19,16 @@ type Props = {
 const InviteForm = ({ workspaceId, onClose }: Props) => {
   const [isPending, startTransition] = useTransition();
 
-  const { query, onQueryChange, users, isFetching, isLoading } = useSearch();
+  const { query, onQueryChange, users, isFetching, isLoading } =
+    useSearch(workspaceId);
 
   const loadingUsers = isFetching || isLoading;
 
-  const handleInvite = ({
-    recieverId,
-    email,
-  }: {
-    recieverId: string;
-    email: string;
-  }) => {
+  const handleInvite = ({ recieverId }: { recieverId: string }) => {
     startTransition(async () => {
       await inviteUser({
         workspaceId,
         recieverId,
-        email,
       })
         .then((data) => {
           if (data.error) {
@@ -86,7 +80,7 @@ const InviteForm = ({ workspaceId, onClose }: Props) => {
                 </AvatarFallback>
               </Avatar>
 
-              <div className="flex flex-col items-start">
+              <div className="flex flex-1 flex-col items-start">
                 <h3 className="text-bold text-lg capitalize">
                   {user.firstname} {user.lastname}
                 </h3>
@@ -98,10 +92,8 @@ const InviteForm = ({ workspaceId, onClose }: Props) => {
 
               <div className="flex items-center justify-end">
                 <Button
-                  className="w-5/12 font-bold"
-                  onClick={() =>
-                    handleInvite({ recieverId: user.id, email: user.email })
-                  }
+                  className="bg-muted hover:bg-muted-foreground text-black"
+                  onClick={() => handleInvite({ recieverId: user.id })}
                   disabled={isPending || loadingUsers || users.length === 0}
                 >
                   <Loader state={isPending} color="#000">

@@ -16,7 +16,7 @@ type Result = {
   } | null;
 }[];
 
-const useSearch = () => {
+const useSearch = (workspaceId: string) => {
   const [query, setQuery] = useState("");
 
   const [debounceValue, setDebounceValue] = useState("");
@@ -40,7 +40,10 @@ const useSearch = () => {
     queryFn: async () => {
       if (!debounceValue) return;
 
-      const data = await getSearchedUsers(debounceValue);
+      const data = await getSearchedUsers({
+        query: debounceValue,
+        workspaceId,
+      });
 
       setUsers(data);
     },

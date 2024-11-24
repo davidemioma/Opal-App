@@ -14,9 +14,22 @@ export const getWorkspaceById = async (id: string) => {
   const workspace = await prismadb.workspace.findUnique({
     where: {
       id,
-      user: {
-        clerkId: user.id,
-      },
+      OR: [
+        {
+          user: {
+            clerkId: user.id,
+          },
+        },
+        {
+          members: {
+            some: {
+              user: {
+                clerkId: user.id,
+              },
+            },
+          },
+        },
+      ],
     },
     select: {
       id: true,
