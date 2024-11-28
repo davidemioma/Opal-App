@@ -63,6 +63,7 @@ export async function POST(
             folderId: folder.id,
             source: fileName,
             userId: id,
+            processing: true,
           },
         },
       },
