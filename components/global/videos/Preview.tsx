@@ -4,6 +4,7 @@ import React from "react";
 import Logo from "../Logo";
 import Link from "next/link";
 import AITools from "./AITools";
+import EditVid from "./EditVid";
 import CopyLink from "./CopyLink";
 import RichLink from "./RichLink";
 import Activitity from "./Activitity";
@@ -74,7 +75,13 @@ const Preview = ({ video, showNav }: Props) => {
                 {video.title}
               </h2>
 
-              {video.author && <div>Edit Video</div>}
+              {video.author && (
+                <EditVid
+                  videoId={video.id || ""}
+                  title={video.title || ""}
+                  description={video.description || ""}
+                />
+              )}
             </div>
 
             <span className="flex items-center gap-3 text-sm md:text-base">
@@ -102,7 +109,13 @@ const Preview = ({ video, showNav }: Props) => {
             <div className="flex items-center justify-between gap-5">
               <p className="text-[#BDBDBD] text-semibold">Description</p>
 
-              {video.author && <div>Edit Video</div>}
+              {video.author && (
+                <EditVid
+                  videoId={video.id || ""}
+                  title={video.title || ""}
+                  description={video.description || ""}
+                />
+              )}
             </div>
 
             <p className="text-[#9D9D9D] text-lg text-medium">

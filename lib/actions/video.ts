@@ -3,6 +3,55 @@
 import prismadb from "../prisma-db";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "../data/auth";
+import { EditVideoValidator } from "../validators/video";
+
+export const editVideoInfo = async ({
+  videoId,
+  values,
+}: {
+  videoId: string;
+  values: EditVideoValidator;
+}) => {
+  try {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      return { status: 401, error: "Unauthorized, Youn need to sign in!" };
+    }
+
+    const video = await prismadb.video.update({
+      where: {
+        id: videoId,
+        userId: user.id,
+      },
+      data: {
+        ...values,
+      },
+      select: {
+        id: true,
+        workspaceId: true,
+        folderId: true,
+      },
+    });
+
+    if (!video) {
+      return { status: 404, error: "Video not found" };
+    }
+
+    revalidatePath(`/dashboard/${video.workspaceId}/folders/${video.folderId}`);
+
+    revalidatePath(`/dashboard/${video.workspaceId}/videos/${video.id}`);
+
+    return { status: 200, message: "Video info updated!" };
+  } catch (err) {
+    console.error("Update Video Info", err);
+
+    return {
+      status: 500,
+      error: "Something went wrong! Internal server error.",
+    };
+  }
+};
 
 export const changeVideoLocation = async ({
   videoId,

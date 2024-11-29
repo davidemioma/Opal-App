@@ -36,7 +36,7 @@ const Activitity = ({ videoId, author }: Props) => {
       ) : comments && comments.length > 0 ? (
         <div className="space-y-2 h-[350px] overflow-y-auto">
           {comments.map((comment) => (
-            <CommentCard comment={comment} />
+            <CommentCard key={comment.id} comment={comment} />
           ))}
         </div>
       ) : (
